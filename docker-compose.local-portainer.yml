@@ -67,7 +67,9 @@ services:
     <<: *typebot-common
     # In Portainer: set TYPEBOT_BUILDER_IMAGE in the stack environment variables
     # to use a custom/local tag available on the Docker host.
+    # If the image only exists locally, also set TYPEBOT_IMAGE_PULL_POLICY=never.
     image: ${TYPEBOT_BUILDER_IMAGE:-baptistearno/typebot-builder:latest}
+    pull_policy: ${TYPEBOT_IMAGE_PULL_POLICY:-always}
     ports:
       - "9080:3000"
 
@@ -75,7 +77,9 @@ services:
     <<: *typebot-common
     # In Portainer: set TYPEBOT_VIEWER_IMAGE in the stack environment variables
     # to use a custom/local tag available on the Docker host.
+    # If the image only exists locally, also set TYPEBOT_IMAGE_PULL_POLICY=never.
     image: ${TYPEBOT_VIEWER_IMAGE:-baptistearno/typebot-viewer:latest}
+    pull_policy: ${TYPEBOT_IMAGE_PULL_POLICY:-always}
     ports:
       - "9081:3000"
 
