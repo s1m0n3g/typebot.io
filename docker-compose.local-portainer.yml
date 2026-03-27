@@ -65,13 +65,21 @@ services:
 
   typebot-builder:
     <<: *typebot-common
-    image: typebot-builder:local
+    # In Portainer: set TYPEBOT_BUILDER_IMAGE in the stack environment variables
+    # to use a custom/local tag available on the Docker host.
+    # Note: do not use pull_policy here because some Portainer stack modes
+    # (notably Swarm) reject it and return a generic 500 error.
+    image: ${TYPEBOT_BUILDER_IMAGE:-baptistearno/typebot-builder:latest}
     ports:
       - "9080:3000"
 
   typebot-viewer:
     <<: *typebot-common
-    image: typebot-viewer:local
+    # In Portainer: set TYPEBOT_VIEWER_IMAGE in the stack environment variables
+    # to use a custom/local tag available on the Docker host.
+    # Note: do not use pull_policy here because some Portainer stack modes
+    # (notably Swarm) reject it and return a generic 500 error.
+    image: ${TYPEBOT_VIEWER_IMAGE:-baptistearno/typebot-viewer:latest}
     ports:
       - "9081:3000"
 
