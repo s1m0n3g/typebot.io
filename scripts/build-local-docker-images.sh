@@ -9,11 +9,21 @@ viewer_image="${TYPEBOT_VIEWER_IMAGE:-${TYPEBOT_VIEWER_TAG:-typebot-viewer:local
 
 cd "${repo_root}"
 
-echo "Building builder image: ${builder_image}"
-docker build --build-arg SCOPE=builder -t "${builder_image}" .
+build_scope_image() {
+  local scope="$1"
+  local image_name="$2"
+  echo "Building ${scope} image: ${image_name}"
+  docker build --build-arg "SCOPE=${scope}" -t "${image_name}" .
+}
 
-echo "Building viewer image: ${viewer_image}"
-docker build --build-arg SCOPE=viewer -t "${viewer_image}" .
+build_scope_image builder "${builder_image}" &
+builder_pid=$!
+
+build_scope_image viewer "${viewer_image}" &
+viewer_pid=$!
+
+wait "${builder_pid}"
+wait "${viewer_pid}"
 
 echo "Done."
 echo "You can now run:"
