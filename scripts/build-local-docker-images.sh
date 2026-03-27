@@ -17,4 +17,4 @@ docker build --build-arg SCOPE=viewer -t "${viewer_image}" .
 
 echo "Done."
 echo "You can now run:"
-echo "TYPEBOT_BUILDER_IMAGE=${builder_image} TYPEBOT_VIEWER_IMAGE=${viewer_image} TYPEBOT_IMAGE_PULL_POLICY=never docker compose -f docker-compose.local-portainer.yml up -d"
+echo "TYPEBOT_BUILDER_IMAGE=${builder_image} TYPEBOT_VIEWER_IMAGE=${viewer_image} docker compose -f docker-compose.local-portainer.yml up -d"
