@@ -1,0 +1,85 @@
+version: "3.8"
+
+x-typebot-common: &typebot-common
+  restart: always
+  depends_on:
+    typebot-db:
+      condition: service_healthy
+    typebot-redis:
+      condition: service_healthy
+  networks:
+    - typebot-network
+  environment:
+    DATABASE_URL: ${DATABASE_URL}
+    REDIS_URL: ${REDIS_URL:-redis://typebot-redis:6379}
+    ENCRYPTION_SECRET: ${ENCRYPTION_SECRET}
+    NODE_OPTIONS: ${NODE_OPTIONS:-}
+    NEXTAUTH_URL: ${NEXTAUTH_URL}
+    NEXT_PUBLIC_VIEWER_URL: ${NEXT_PUBLIC_VIEWER_URL}
+    ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+    DISABLE_SIGNUP: ${DISABLE_SIGNUP:-false}
+    TYPEBOT_DEBUG: ${TYPEBOT_DEBUG:-false}
+    SMTP_HOST: ${SMTP_HOST:-mail}
+    SMTP_PORT: ${SMTP_PORT:-25}
+    SMTP_SECURE: ${SMTP_SECURE:-false}
+    NEXT_PUBLIC_SMTP_FROM: ${NEXT_PUBLIC_SMTP_FROM:-}
+    GOOGLE_AUTH_CLIENT_ID: ${GOOGLE_AUTH_CLIENT_ID:-}
+    GOOGLE_AUTH_CLIENT_SECRET: ${GOOGLE_AUTH_CLIENT_SECRET:-}
+
+services:
+  typebot-db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-typebot}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-typebot}
+    volumes:
+      - typebot-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - typebot-network
+
+  typebot-redis:
+    image: redis:alpine
+    restart: always
+    command: --save 60 1 --loglevel warning
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    volumes:
+      - typebot-redis-data:/data
+    networks:
+      - typebot-network
+
+  mail:
+    image: bytemark/smtp
+    restart: always
+    networks:
+      - typebot-network
+
+  typebot-builder:
+    <<: *typebot-common
+    image: typebot-builder:local
+    ports:
+      - "9080:3000"
+
+  typebot-viewer:
+    <<: *typebot-common
+    image: typebot-viewer:local
+    ports:
+      - "9081:3000"
+
+networks:
+  typebot-network:
+    driver: bridge
+    attachable: true
+
+volumes:
+  typebot-db-data:
+  typebot-redis-data:
