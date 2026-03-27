@@ -65,13 +65,17 @@ services:
 
   typebot-builder:
     <<: *typebot-common
-    image: typebot-builder:local
+    # In Portainer, set TYPEBOT_BUILDER_IMAGE in stack environment variables.
+    # We avoid default-expression syntax here for maximum Portainer compatibility.
+    image: ${TYPEBOT_BUILDER_IMAGE}
     ports:
       - "9080:3000"
 
   typebot-viewer:
     <<: *typebot-common
-    image: typebot-viewer:local
+    # In Portainer, set TYPEBOT_VIEWER_IMAGE in stack environment variables.
+    # We avoid default-expression syntax here for maximum Portainer compatibility.
+    image: ${TYPEBOT_VIEWER_IMAGE}
     ports:
       - "9081:3000"
 
