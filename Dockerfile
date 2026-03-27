@@ -1,3 +1,5 @@
+# syntax=docker/dockerfile:1.7
+
 # ================= INSTALL BUN ===================
 ARG BUN_VERSION=1.3.9
 
@@ -25,8 +27,10 @@ WORKDIR /app
 FROM base AS builder
 ARG SCOPE
 COPY . .
-RUN SENTRYCLI_SKIP_DOWNLOAD=1 bun install --frozen-lockfile
-RUN SKIP_ENV_CHECK=true NEXT_PUBLIC_VIEWER_URL=http://localhost bunx nx build ${SCOPE}
+RUN --mount=type=cache,target=/root/.bun/install/cache \
+    SENTRYCLI_SKIP_DOWNLOAD=1 bun install --frozen-lockfile
+RUN --mount=type=cache,target=/app/.nx/cache \
+    SKIP_ENV_CHECK=true NEXT_PUBLIC_VIEWER_URL=http://localhost bunx nx build ${SCOPE}
 RUN DATABASE_URL=postgresql:// bunx nx db:generate prisma
 
 # ================== RELEASE ======================
